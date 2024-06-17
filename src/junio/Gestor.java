@@ -1,45 +1,35 @@
 package junio;
 
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Gestor {
-    private ArrayList<Proyecto> proyectos;
+    private Map<String, Proyecto> proyectos;
 
     public Gestor() {
-        this.proyectos = Fichero.cargar(); // Cargar proyectos desde el archivo
+        this.proyectos = Fichero.cargarProyectos(); // Carga los proyectos al iniciar
     }
 
-    public void addProyecto(String nombre, String empresa, Date fechaInicio) {
-        Proyecto nuevoProyecto = new Proyecto(nombre, empresa, fechaInicio);
-        proyectos.add(nuevoProyecto);
-        Fichero.guardar(proyectos);
-    }
-
-    public void removeProyecto(String nombre) {
-        for (int i = 0; i < proyectos.size(); i++) {
-            if (proyectos.get(i).getNombre().equals(nombre)) {
-                proyectos.remove(i);
-                break;
-            }
+    public void agregarProyecto(Proyecto proyecto) throws Exception {
+        if (proyectos.containsKey(proyecto.getNombre())) {
+            throw new Exception("Proyecto duplicado.");
         }
-        Fichero.guardar(proyectos);
+        proyectos.put(proyecto.getNombre(), proyecto);
+        Fichero.guardarProyectos(proyectos);  // Guarda cada vez que se agrega un proyecto
     }
 
-    public ArrayList<Proyecto> listarProyectos() {
-        return proyectos;
-    }
-
-    public void informeProyectos() {
-        // Método para imprimir proyectos ordenados por empresa sin usar streams
-        ArrayList<Proyecto> sortedProjects = new ArrayList<>(proyectos);
-        sortedProjects.sort((p1, p2) -> p1.getEmpresa().compareTo(p2.getEmpresa()));
-        for (Proyecto p : sortedProjects) {
-            System.out.println("Empresa: " + p.getEmpresa() + ", Proyecto: " + p.getNombre());
+    public void eliminarProyecto(String nombre) {
+        if (proyectos.containsKey(nombre)) {
+            proyectos.remove(nombre);
+            Fichero.guardarProyectos(proyectos);  // Guarda cada vez que se elimina un proyecto
         }
     }
 
-    public void guardarProyectos() {
-        Fichero.guardar(proyectos);
+    public Proyecto obtenerProyecto(String nombre) {
+        return proyectos.get(nombre);
+    }
+
+    public Map<String, Proyecto> obtenerTodosProyectos() {
+        return new HashMap<>(proyectos);
     }
 }
